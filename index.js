@@ -1,12 +1,31 @@
 const express = require('express');
 const cors = require('cors');
 const {MongoClient} = require('mongodb');
+const passport = require('passport');
+require('./passport');
+const authRoute = require('./routes/auth');
+const cookieSession = require('cookie-session');
 require('dotenv').config();
 
 const app = express();
 const port = 4000;
 
-app.use(cors());
+//Middlewares
+app.use(cors({
+    origin: "http://localhost:3000",
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true,
+}));
+app.use("/auth", authRoute);
+
+app.use(cookieSession({
+    name: "session",
+    keys: ["abc123"],
+    maxAge: 24*60*60*1000
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 const uri =
   `mongodb+srv://petter-admin:${process.env.DB_PASSWORD}@cluster0.f7aam.mongodb.net/Presentplaneraren?retryWrites=true&w=majority`;
@@ -22,7 +41,6 @@ MongoClient.connect(uri, {
 })
 
 app.get('/', async (req, res) => {
-    console.log('get');
     const results = await app.locals.db.collection('lists').find().toArray();
     console.log(results);
     res.json(results);
