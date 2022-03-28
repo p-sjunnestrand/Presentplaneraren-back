@@ -13,7 +13,7 @@ const port = 4000;
 
 app.use(cookieSession({
     name: "session",
-    keys: ["abc123"],
+    keys: [process.env.COOKIE_SESSION_KEYS],
     maxAge: 24*60*60*1000,
 }));
 
