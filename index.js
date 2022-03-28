@@ -1,15 +1,25 @@
+const cookieSession = require('cookie-session');
 const express = require('express');
 const cors = require('cors');
-const {MongoClient} = require('mongodb');
-const passport = require('passport');
 require('./passport');
+const passport = require('passport');
 const authRoute = require('./routes/auth');
-const cookieSession = require('cookie-session');
+const {MongoClient} = require('mongodb');
 require('dotenv').config();
 
 const app = express();
 const port = 4000;
 
+app.use(cookieSession({
+    name: "session",
+    keys: ["abc123"],
+    maxAge: 24*60*60*1000,
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// app.options('*', cors());
 //Middlewares
 app.use(cors({
     origin: "http://localhost:3000",
@@ -18,14 +28,9 @@ app.use(cors({
 }));
 app.use("/auth", authRoute);
 
-app.use(cookieSession({
-    name: "session",
-    keys: ["abc123"],
-    maxAge: 24*60*60*1000
-}));
 
-app.use(passport.initialize());
-app.use(passport.session());
+
+
 
 const uri =
   `mongodb+srv://petter-admin:${process.env.DB_PASSWORD}@cluster0.f7aam.mongodb.net/Presentplaneraren?retryWrites=true&w=majority`;
@@ -49,3 +54,4 @@ app.get('/', async (req, res) => {
 app.listen(port, () => {
     console.log(`Listening to port ${port}`);
 });
+

@@ -7,14 +7,11 @@ const clientSecret = "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";
 passport.use(new GoogleStrategy({
     clientID: clientId,
     clientSecret: clientSecret,
-    callbackURL: "/auth/google/callback"
+    callbackURL: "/auth/google/callback",
+    // passReqToCallback: true,
   },
   function(accessToken, refreshToken, profile, done) {
-      //when using db, change done to cb
-    // User.findOrCreate({ googleId: profile.id }, function (err, user) {
-    //   return cb(err, user);
-    // });
-    done(null, profile)
+    done(null, profile);
   }
 ));
 
