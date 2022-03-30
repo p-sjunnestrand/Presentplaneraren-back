@@ -4,6 +4,9 @@ const User = require('./mongoose');
 const passport = require('passport');
 require('dotenv').config();
 const bcrypt = require('bcrypt');
+const mongo = require('mongodb')
+
+const ObjectID = mongo.ObjectId;
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
@@ -18,12 +21,14 @@ passport.use(new GoogleStrategy({
       }
       if(!user) {
         user = new User({
+          _id: new ObjectID(),
           nameFirst: profile.name.givenName,
           nameLast: profile.name.familyName,
           googleId: profile.id,
           email: profile.emails[0].value,
           password: null
         });
+        console.log(user);
         user.save(err => {
           if(err){
             console.log(err);
@@ -56,10 +61,13 @@ passport.use(new LocalStrategy({usernameField: 'email'},
   }
 ));
 passport.serializeUser((user, done) => {
+  console.log("serialize: ", user)
+  // if(user.provider === "google"){}
     done(null, user.id);
 });
 passport.deserializeUser((id, done) => {
-  User.findById({_id: id}, (err, user) => {
+  console.log("id: ", id);
+  User.findOne({_id: id}, (err, user) => {
     done(err, user);
   })
 });

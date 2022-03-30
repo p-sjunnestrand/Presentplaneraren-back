@@ -13,12 +13,18 @@ const cookieParser = require('cookie-parser');
 
 require('dotenv').config();
 
+
 const app = express();
 const port = 4000;
 // app.options("/auth/local", cors());
 const uri =
-  `mongodb+srv://petter-admin:${process.env.DB_PASSWORD}@cluster0.f7aam.mongodb.net/Presentplaneraren?retryWrites=true&w=majority`;
+`mongodb+srv://petter-admin:${process.env.DB_PASSWORD}@cluster0.f7aam.mongodb.net/Presentplaneraren?retryWrites=true&w=majority`;
 
+app.use(cors({
+    origin: "http://localhost:3000",
+    methods: "GET,POST,PUT,DELETE,OPTIONS",
+    credentials: true,
+}));
 // app.use(cookieSession({
 //     name: "session",
 //     keys: [process.env.COOKIE_SESSION_KEYS],
@@ -44,11 +50,7 @@ app.use(express.json());
 //     credentials: true,
 // }));
 //Middlewares
-app.use(cors({
-    origin: "http://localhost:3000",
-    methods: "GET,POST,PUT,DELETE,OPTIONS",
-    credentials: true,
-}));
+
 
 app.use(cookieParser(process.env.SESSION_SECRET));
 
@@ -60,8 +62,6 @@ app.get("/user", (req, res) => {
     console.log(req.user);
     res.send(req.user);
 })
-
-
 
 mongoose.connect(uri, {
     useUnifiedTopology: true,
