@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const User = require('../mongoose');
+const User = require('../schemas/user');
 const bcrypt = require('bcrypt');
 
 router.post("/", (req, res) => {
@@ -9,6 +9,7 @@ router.post("/", (req, res) => {
           throw new Error('Something went wrong when querrying the database');
         }
         if(!user) {
+            console.log("user available!")
             const plainPsw = req.body.password;
             const saltRounds = 10;
             const encryptedPsw = await bcrypt.hash(plainPsw, saltRounds);

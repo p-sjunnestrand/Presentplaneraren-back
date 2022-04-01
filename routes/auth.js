@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const passport = require('passport');
-const cors = require("cors");
 
 //Is called whenever front is loaded. Checks if user is logged in. So is also called when authentication below succeedes.
 router.get("/login/success", (req, res) => {
@@ -10,6 +9,8 @@ router.get("/login/success", (req, res) => {
             message: "Login succeeded",
             user: req.user,
         })
+    } else {
+        res.status(401).json("Unauthorized");
     } 
 });
 
@@ -34,23 +35,15 @@ router.get("/google/callback", passport.authenticate("google", {
     failureRedirect: "/login/failed",
 }));
 
-router.post("/local", (req,res, next) => {
-    console.log("local!");
-    passport.authenticate("local", (err, user, info) => {
-        if(err) throw err;
-        if(!user) res.json("No user!");
-        else {
-            req.logIn(user, err => {
-                if(err) throw err;
-                res.json("Success!");
-            })
-        }
-    })(req,res,next)
+router.post("/local", passport.authenticate("local", {
+    passReqToCallback: true,
+}), (req,res) => {
+    res.json({auth: {
+        nameFirst: req.user.nameFirst,
+        nameLast: req.user.nameLast,
+        email: req.user.email,
+    }})
 })
-// router.post("/local", passport.authenticate("local"), (req, res) => {
-//     console.log("authenticate!");
-//     res.json({message: "Ok"})
-// });
 
 
 module.exports = router;

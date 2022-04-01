@@ -1,6 +1,6 @@
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const LocalStrategy = require('passport-local').Strategy;
-const User = require('./mongoose');
+const User = require('./schemas/user');
 const passport = require('passport');
 require('dotenv').config();
 const bcrypt = require('bcrypt');
@@ -49,9 +49,13 @@ passport.use(new LocalStrategy({usernameField: 'email'},
     console.log("local strategy")
     try{
       const foundUser = await User.findOne({ email: username });
-      if (foundUser && bcrypt.compare(password, foundUser.password)) {
+      console.log("found user")
+      // console.log( await bcrypt.compare(password, foundUser.password)); 
+      if (foundUser && await bcrypt.compare(password, foundUser.password)) {
+        console.log("user and password match!")
         done(null, foundUser);
       } else {
+        console.log("password or user wrong!")
         done(null, false);
       }
 
