@@ -5,6 +5,7 @@ require('./passport');
 const passport = require('passport');
 const authRoute = require('./routes/auth');
 const signupRoute = require('./routes/signup');
+const listsRoute = require('./routes/lists');
 const {MongoClient} = require('mongodb');
 const mongoose = require('mongoose');
 const session = require('express-session');
@@ -33,7 +34,7 @@ app.use(cors({
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     // store: MongoStore.create({ mongoUrl: uri, collectionName: "sessions"}),
     cookie: {
         maxAge: 24*60*60*1000
@@ -56,12 +57,13 @@ app.use(cookieParser(process.env.SESSION_SECRET));
 
 app.use("/auth", authRoute);
 app.use("/signup", signupRoute);
+app.use("/lists", listsRoute);
 
 
-app.get("/user", (req, res) => {
-    console.log(req.user);
-    res.send(req.user);
-})
+// app.get("/user", (req, res) => {
+//     console.log(req.user);
+//     res.send(req.user);
+// })
 
 mongoose.connect(uri, {
     useUnifiedTopology: true,
