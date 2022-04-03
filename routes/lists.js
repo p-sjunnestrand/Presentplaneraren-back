@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const List = require('../schemas/list');
 const Group = require('../schemas/group');
+const User = require('../schemas/user');
 const mongo = require('mongodb');
 
 // const ObjectID = mongo.ObjectId;
@@ -25,14 +26,18 @@ router.post("/create", (req, res) => {
             title: req.body.title,
             owner: req.user._id,
         });
-        newList.save((err, doc) => {
+        newList.save( async (err, doc) => {
             if(err) {
                 console.log(err);
             }
-            const docid = doc._id;
-            console.log("doc id ", docid)
-            User.findOneAndUpdate({_id: req.user._id}, { $pull: { lists: { $in: [ doc._id ] } }})
-            res.status(200).json(doc);
+            const userId = req.user._id.toString();
+            const updatedUser = await User.findByIdAndUpdate(userId, { $push: { lists: doc._id }});
+            console.log(updatedUser)
+            if(updatedUser){
+                res.status(200).json(doc);
+            } else{
+                res.status(500).json(doc);
+            }
 
         });
     } else {
@@ -40,11 +45,30 @@ router.post("/create", (req, res) => {
     }
 });
 
-// router.
+router.post("/delete", async (req, res) => {
+    if(req.user) {
+        try {
+            console.log(req.body.id);
+            const deleted = await List.deleteOne({_id: req.body.id});
+            if(deleted) {
+                const userId = req.user._id.toString();
+                const updatedUser = await User.findByIdAndUpdate(userId, { $pull: { lists: req.body.id }});
+                if(updatedUser) {
+                    res.status(200).json(updatedUser);
+                }
+            }
+
+        }
+        catch (error) {
+            console.log(error);
+            res.json(error);
+        }
+    }
+})
 
 router.post("/items/create", (req, res) => {
     if(req.user) {
-        console.log(req.body);
+        // console.log(req.body);
         const currentList = req.body.list;
         const newItem = req.body.item;
         List.findOneAndUpdate({_id: currentList}, {$push: {items: newItem}}, {new: true}, (err, doc) => {
