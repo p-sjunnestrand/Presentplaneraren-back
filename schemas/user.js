@@ -8,7 +8,8 @@ const userSchema = mongoose.Schema({
     email: String,
     password: String,
     groups: Array,
-    lists: [{type: ObjectId}]
+    lists: [{type: ObjectId}],
+    invites: [{type: ObjectId}],
 });
 
 

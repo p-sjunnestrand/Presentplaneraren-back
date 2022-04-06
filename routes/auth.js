@@ -7,7 +7,15 @@ router.get("/login/success", (req, res) => {
         res.status(200).json({
             success: true,
             message: "Login succeeded",
-            user: req.user,
+            // user: req.user,
+            user: {
+                _id: req.user._id,
+                email: req.user.email,
+                groups: req.user.groups,
+                lists: req.user.lists,
+                nameFirst: req.user.nameFirst,
+                nameLast: req.user.nameLast
+            }
         })
     } else {
         res.status(401).json("Unauthorized");
@@ -38,11 +46,19 @@ router.get("/google/callback", passport.authenticate("google", {
 router.post("/local", passport.authenticate("local", {
     passReqToCallback: true,
 }), (req,res) => {
-    res.json({auth: {
-        nameFirst: req.user.nameFirst,
-        nameLast: req.user.nameLast,
-        email: req.user.email,
-    }})
+    res.status(200).json({
+        success: true,
+        message: "Login succeeded",
+        // user: req.user,
+        user: {
+            _id: req.user._id,
+            email: req.user.email,
+            groups: req.user.groups,
+            lists: req.user.lists,
+            nameFirst: req.user.nameFirst,
+            nameLast: req.user.nameLast
+        }
+    })
 })
 
 

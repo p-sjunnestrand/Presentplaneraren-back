@@ -6,6 +6,7 @@ const passport = require('passport');
 const authRoute = require('./routes/auth');
 const signupRoute = require('./routes/signup');
 const listsRoute = require('./routes/lists');
+const groupsRoute = require('./routes/groups');
 const {MongoClient} = require('mongodb');
 const mongoose = require('mongoose');
 const session = require('express-session');
@@ -58,6 +59,7 @@ app.use(cookieParser(process.env.SESSION_SECRET));
 app.use("/auth", authRoute);
 app.use("/signup", signupRoute);
 app.use("/lists", listsRoute);
+app.use("/groups", groupsRoute);
 
 
 // app.get("/user", (req, res) => {
