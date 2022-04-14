@@ -2,7 +2,7 @@ const router = require('express').Router();
 const List = require('../schemas/list');
 const Group = require('../schemas/group');
 const User = require('../schemas/user');
-const mongo = require('mongodb');
+const { ObjectId } = require('mongodb');
 
 // const ObjectID = mongo.ObjectId;
 router.get("/", async (req, res) => {
@@ -18,14 +18,31 @@ router.get("/", async (req, res) => {
     } else {
         res.json({message: "Unauthorized"});
     }
+});
+
+router.get("/:groupId", (req, res) => {
+    if(req.user){
+        const currentGroup = req.params.groupId;
+        console.log(currentGroup);
+        List.find({group: currentGroup}, (err, docs) => {
+            if(err) console.log(err);
+            console.log(docs)
+            res.json(docs);
+        });
+    } else {
+        res.status(401).json({message: "Unauthorized"});
+    }
 })
 
 router.post("/create", (req, res) => {
     if(req.user) {
+        console.log(req.body)
         const newList = new List({
             title: req.body.title,
             owner: req.user._id,
+            group: req.body.inGroup ? new ObjectId(req.body.inGroup) : null
         });
+        console.log(newList)
         newList.save( async (err, doc) => {
             if(err) {
                 console.log(err);
@@ -40,6 +57,7 @@ router.post("/create", (req, res) => {
             }
 
         });
+        // res.json({message: "ok"})
     } else {
         res.json({message: "Unauthorized"});
     }
@@ -68,12 +86,25 @@ router.post("/delete", async (req, res) => {
 
 router.post("/items/create", (req, res) => {
     if(req.user) {
-        // console.log(req.body);
+        console.log(req.body);
         const currentList = req.body.list;
-        const newItem = req.body.item;
+        let newItem = req.body.item;
+        newItem._id = new ObjectId();
         List.findOneAndUpdate({_id: currentList}, {$push: {items: newItem}}, {new: true}, (err, doc) => {
             if(err) console.log(err);
             res.status(200).json(doc)
+        })
+    }
+});
+
+router.post("/items/delete", (req, res) => {
+    if(req.user) {
+        console.log(req.body);
+        const itemId = new ObjectId(req.body.item);
+        List.findOneAndUpdate({_id: req.body.list}, {$pull: {items: {_id: itemId}}}, {new: true}, (err, doc) => {
+            if(err) console.log(err);
+            console.log(doc);
+            res.status(200).json(doc);
         })
     }
 })

@@ -9,7 +9,11 @@ const userSchema = mongoose.Schema({
     password: String,
     groups: Array,
     lists: [{type: ObjectId}],
-    invites: [{type: ObjectId}],
+    invites: [{
+        _id: ObjectId,
+        name: String,
+        owner: String,
+    }],
 });
 
 

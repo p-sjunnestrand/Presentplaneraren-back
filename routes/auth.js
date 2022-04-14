@@ -14,7 +14,8 @@ router.get("/login/success", (req, res) => {
                 groups: req.user.groups,
                 lists: req.user.lists,
                 nameFirst: req.user.nameFirst,
-                nameLast: req.user.nameLast
+                nameLast: req.user.nameLast,
+                invites: req.user.invites,
             }
         })
     } else {
@@ -56,7 +57,8 @@ router.post("/local", passport.authenticate("local", {
             groups: req.user.groups,
             lists: req.user.lists,
             nameFirst: req.user.nameFirst,
-            nameLast: req.user.nameLast
+            nameLast: req.user.nameLast,
+            invites:req.user.invites,
         }
     })
 })
