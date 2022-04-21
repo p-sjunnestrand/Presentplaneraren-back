@@ -7,7 +7,6 @@ router.get("/login/success", (req, res) => {
         res.status(200).json({
             success: true,
             message: "Login succeeded",
-            // user: req.user,
             user: {
                 _id: req.user._id,
                 email: req.user.email,
@@ -37,6 +36,7 @@ router.get("/logout", (req, res) => {
     res.redirect("http://localhost:3000");
 });
 
+// The google routes are not called as of now, since they cause conflicts with the local auth. This needs to be adressed in the future!
 router.get("/google", passport.authenticate("google", {scope: ["profile", "email"]}));
 
 router.get("/google/callback", passport.authenticate("google", {
@@ -50,7 +50,6 @@ router.post("/local", passport.authenticate("local", {
     res.status(200).json({
         success: true,
         message: "Login succeeded",
-        // user: req.user,
         user: {
             _id: req.user._id,
             email: req.user.email,

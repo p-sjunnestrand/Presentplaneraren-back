@@ -12,7 +12,6 @@ passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: "/auth/google/callback",
-    // passReqToCallback: true,
   },
   function async (accessToken, refreshToken, profile, done) {
     User.findOne({googleId: profile.id}, (err, user) => {
@@ -50,7 +49,6 @@ passport.use(new LocalStrategy({usernameField: 'email'},
     try{
       const foundUser = await User.findOne({ email: username });
       console.log("found user")
-      // console.log( await bcrypt.compare(password, foundUser.password)); 
       if (foundUser && await bcrypt.compare(password, foundUser.password)) {
         console.log("user and password match!")
         done(null, foundUser);
@@ -66,7 +64,6 @@ passport.use(new LocalStrategy({usernameField: 'email'},
 ));
 passport.serializeUser((user, done) => {
   console.log("serialize: ", user)
-  // if(user.provider === "google"){}
     done(null, user.id);
 });
 passport.deserializeUser((id, done) => {

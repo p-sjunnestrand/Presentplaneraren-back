@@ -6,6 +6,7 @@ const listSchema = mongoose.Schema({
     owner: ObjectId,
     items: Array,
     group: ObjectId,
+    taken: String,
 })
 
 module.exports = mongoose.model('List', listSchema);

@@ -4,13 +4,11 @@ const Group = require('../schemas/group');
 const User = require('../schemas/user');
 const { ObjectId } = require('mongodb');
 
-// const ObjectID = mongo.ObjectId;
 router.get("/", async (req, res) => {
     console.log("get!")
     if(req.user) {
         const allLists = await List.find({owner: req.user._id});
         const allGroups = await Group.find({users: req.user._id});
-        console.log(allGroups);
         res.json({
             lists: allLists,
             groups: allGroups
@@ -23,7 +21,6 @@ router.get("/", async (req, res) => {
 router.get("/:groupId", (req, res) => {
     if(req.user){
         const currentGroup = req.params.groupId;
-        console.log(currentGroup);
         List.find({group: currentGroup}, (err, docs) => {
             if(err) console.log(err);
             console.log(docs)
@@ -42,7 +39,6 @@ router.post("/create", (req, res) => {
             owner: req.user._id,
             group: req.body.inGroup ? new ObjectId(req.body.inGroup) : null
         });
-        console.log(newList)
         newList.save( async (err, doc) => {
             if(err) {
                 console.log(err);
@@ -57,7 +53,6 @@ router.post("/create", (req, res) => {
             }
 
         });
-        // res.json({message: "ok"})
     } else {
         res.json({message: "Unauthorized"});
     }
@@ -66,7 +61,6 @@ router.post("/create", (req, res) => {
 router.post("/delete", async (req, res) => {
     if(req.user) {
         try {
-            console.log(req.body.id);
             const deleted = await List.deleteOne({_id: req.body.id});
             if(deleted) {
                 const userId = req.user._id.toString();
@@ -75,7 +69,6 @@ router.post("/delete", async (req, res) => {
                     res.status(200).json(updatedUser);
                 }
             }
-
         }
         catch (error) {
             console.log(error);
@@ -109,4 +102,36 @@ router.post("/items/delete", (req, res) => {
     }
 })
 
+router.post("/items/mark", async (req, res) => {
+    if(req.user){
+        const itemId = new ObjectId(req.body.itemId);
+        const targetList = await List.findOne({_id: req.body.listId});
+        const checkSync = (list) => {
+            if(list) {
+                let sync = true;
+                list.items.forEach(item => {
+                    if(item._id.toString() === req.body.itemId && item.taken && item.taken != req.user.id){
+                        sync = false;
+
+                    }
+                });
+                return sync;
+            }
+        }
+        console.log(checkSync(targetList));
+        if(checkSync(targetList)){
+            console.log("synced")
+            List.findOneAndUpdate({_id: req.body.listId, "items._id": itemId}, {$set: {"items.$.taken": req.body.taken}}, {new: true}, (err, doc) => {
+                if(err) console.log(err);
+                console.log(doc)
+                res.status(200).json(doc);
+            })
+        } else {
+            console.log("unsynced");
+            res.status(500).json("unsynced");
+        }
+    } else {
+        res.status(401).json({message: "Unauthorized"});
+    }
+})
 module.exports = router;
